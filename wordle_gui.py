@@ -1,12 +1,12 @@
 import tkinter as tk
 from tkinter import messagebox
 
-
 class WordleGUI:
     def __init__(self, root, game):
         self.root = root
         self.root.title("Wordle")
         self.game = game
+        self.definicion_disponible = False
 
         self.frame = tk.Frame(root)
         self.frame.pack(padx=20, pady=20)
@@ -22,6 +22,9 @@ class WordleGUI:
 
         self.new_game_button = tk.Button(self.frame, text="Nueva partida", command=self.iniciar_nueva_partida)
         self.new_game_button.pack()
+
+        self.definition_button = tk.Button(self.frame, text="Ver Definición", command=self.ver_definicion, state="disabled")
+        self.definition_button.pack()
 
         self.attempts_label = tk.Label(self.frame, text=f"Intentos restantes: {self.game.intentos_restantes}")
         self.attempts_label.pack()
@@ -48,8 +51,10 @@ class WordleGUI:
 
         if self.game.verificar_victoria():
             messagebox.showinfo("Wordle", "¡Has ganado!")
+            self.definition_button.config(state="active")
         elif self.game.verificar_derrota():
             messagebox.showinfo("Wordle", f"Has perdido. La palabra oculta era: {self.game.palabra_oculta}")
+            self.definition_button.config(state="active")
 
         self.attempts_label.config(text=f"Intentos restantes: {self.game.intentos_restantes}")
 
@@ -57,4 +62,9 @@ class WordleGUI:
         self.game.iniciar_nueva_partida()
         self.attempts_label.config(text=f"Intentos restantes: {self.game.intentos_restantes}")
         self.entry.delete(0, 'end')
+        self.definition_button.config(state="disabled")
 
+    def ver_definicion(self):
+        palabra_oculta = self.game.palabra_oculta
+        definicion = self.game.definiciones.get(palabra_oculta, "Definición no encontrada.")
+        messagebox.showinfo("Definición de la Palabra Oculta", definicion)
