@@ -28,6 +28,14 @@ class WordleGUI:
 
         self.attempts_label = tk.Label(self.frame, text=f"Intentos restantes: {self.game.intentos_restantes}")
         self.attempts_label.pack()
+        self.word_display_frame = tk.Frame(self.frame)
+        self.word_display_frame.pack()
+
+        self.word_display_labels = []
+        for i in range(5):
+            label = tk.Label(self.word_display_frame, text='', width=2, height=2, borderwidth=2, relief='ridge')
+            label.grid(row=0, column=i, padx=5)
+            self.word_display_labels.append(label)
 
     def realizar_intento(self):
         palabra = self.entry.get().strip()
@@ -37,16 +45,21 @@ class WordleGUI:
 
         self.game.realizar_intento(palabra)
         retroalimentacion = self.game.historial_intentos[-1][1]
-        palabra_con_aciertos = []
-        for i in range(5):
-            if palabra[i] == self.game.palabra_oculta[i]:
-                palabra_con_aciertos.append(palabra[i])
-            else:
-                palabra_con_aciertos.append("-")
-        palabra_con_aciertos = "".join(palabra_con_aciertos)
 
-        retroalimentacion_message = f"Intento: {palabra} - Retroalimentación: {retroalimentacion.correctas_incorrectas_posicion} correctas en posición incorrecta, " \
-              f"{retroalimentacion.incorrectas} incorrectas. Palabra con aciertos: {palabra_con_aciertos}"
+        for i in range(5):
+            self.word_display_labels[i].config(text=palabra[i])
+
+            if palabra[i] == self.game.palabra_oculta[i]:
+                self.word_display_labels[i].config(bg='green')
+            elif palabra[i] in self.game.palabra_oculta:
+                self.word_display_labels[i].config(bg='yellow')
+            else:
+                self.word_display_labels[i].config(bg='gray')
+
+        retroalimentacion_message = f"Retroalimentación: " \
+                                    f"{retroalimentacion.correctas_posicion} en posición correcta, " \
+                                    f"{retroalimentacion.correctas_incorrectas_posicion} en posición incorrecta, " \
+                                    f"{retroalimentacion.incorrectas} incorrectas."
         messagebox.showinfo("Wordle", retroalimentacion_message)
 
         if self.game.verificar_victoria():
